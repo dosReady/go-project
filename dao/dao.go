@@ -6,8 +6,8 @@ import (
 
 	"github.com/jinzhu/gorm"
 	// postgres driver
+	"github.com/dlog/core"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/pinetree/core"
 )
 
 var db *gorm.DB

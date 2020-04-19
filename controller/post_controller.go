@@ -3,9 +3,9 @@ package controller
 import (
 	"net/http"
 
+	"github.com/dlog/core"
+	"github.com/dlog/service"
 	"github.com/gin-gonic/gin"
-	"github.com/pinetree/core"
-	"github.com/pinetree/service"
 )
 
 // MngPost export

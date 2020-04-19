@@ -4,11 +4,11 @@ import (
 	"log"
 	"time"
 
+	"github.com/dlog/controller"
+	"github.com/dlog/core"
+	"github.com/dlog/dao"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/pinetree/controller"
-	"github.com/pinetree/core"
-	"github.com/pinetree/dao"
 )
 
 func initializeDB() {

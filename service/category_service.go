@@ -3,8 +3,8 @@ package service
 import (
 	"log"
 
-	"github.com/pinetree/core"
-	"github.com/pinetree/dao"
+	"github.com/dlog/core"
+	"github.com/dlog/dao"
 )
 
 // GetCategoryList : PostID로 해당 카테고리를 조회한다.

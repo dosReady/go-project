@@ -3,8 +3,8 @@ package service
 import (
 	"time"
 
-	"github.com/pinetree/core"
-	"github.com/pinetree/dao"
+	"github.com/dlog/core"
+	"github.com/dlog/dao"
 )
 
 // InstPost export
