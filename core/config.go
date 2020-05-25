@@ -27,7 +27,7 @@ type Config struct {
 func _newInstance() *Config {
 	c := Config{}
 	dir, _ := os.Getwd()
-	_ = configor.Load(&c, fmt.Sprintf("%s\\%s", dir, "config.json"))
+	_ = configor.Load(&c, fmt.Sprintf("%s/%s", dir, "config.json"))
 	return &c
 }
 

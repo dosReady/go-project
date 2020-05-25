@@ -25,6 +25,34 @@ type TbCategory struct {
 	CommonModel
 }
 
+// TbUser : 유저 테이블 모델
+type TbUser struct {
+	LoginID      string `gorm:"type:varchar(100);primary_key:auto_increment"`
+	Password     string `gorm:"type:varchar(100);not null;"`
+	Role         string `gorm:"varchar(100);not null;"`
+	RefreshToken string `gorm:"text;"`
+	CommonModel
+}
+
+type UserJSON struct {
+	LoginID      string `json:"LoginID"`
+	Password     string `json:"Password"`
+	Role         string `json:"Role"`
+	RefreshToken string `json:"RefreshToken"`
+	AccessToken  string `json:"AccessToken"`
+}
+
+type UserInDTO struct {
+	UserJSON `json:"user"`
+}
+
+type UserOutDTO struct {
+	LoginID      string `json:"LoginID"`
+	Role         string `json:"Role"`
+	RefreshToken string `json:"RefreshToken"`
+	AccessToken  string `json:"AccessToken"`
+}
+
 // PostJSON export
 type PostJSON struct {
 	PostID    uint32 `json:"PostID"`
@@ -35,7 +63,7 @@ type PostJSON struct {
 
 // CategoryJSON export
 type CategoryJSON struct {
-	CtgID    uint32 `json:"CtgID"`
+	CtgID    uint32 `json:"CtgID,string"`
 	CtgTitle string `json:"CtgTitle"`
 	CtgAlias string `json:"CtgAlias"`
 	CtgCnt   uint32 `json:"CtgCnt"`

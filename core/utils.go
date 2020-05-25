@@ -29,3 +29,10 @@ func BindMap(c *gin.Context) (m map[string]interface{}) {
 	_ = decoder.Decode(&m)
 	return m
 }
+
+// GetJSON
+func GetJSON(c *gin.Context, param interface{}) {
+	if err := c.ShouldBindJSON(&param); err != nil {
+		panic(err)
+	}
+}

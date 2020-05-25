@@ -12,7 +12,10 @@ import (
 func MngPost() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var info core.INPostInfo
-		c.BindJSON(&info)
+		if err := c.ShouldBind(&info); err != nil {
+			panic(err)
+		}
+
 		if info.PostJSON.PostID > 0 {
 			service.UpdPost(info)
 		} else {
@@ -26,10 +29,10 @@ func MngPost() gin.HandlerFunc {
 func GetPost() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var postInfo core.INPostInfo
-		c.BindJSON(&postInfo)
-
-		var result core.OUTPostInfo
-		result = service.GetPost(postInfo)
+		if err := c.ShouldBind(&postInfo); err != nil {
+			panic(err)
+		}
+		result := service.GetPost(postInfo)
 		c.JSON(http.StatusOK, gin.H{"info": result.TbPost, "category": result.TbCategory})
 	}
 }
@@ -38,7 +41,9 @@ func GetPost() gin.HandlerFunc {
 func GetPostList() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var info core.INPostInfo
-		c.BindJSON(&info)
+		if err := c.ShouldBind(&info); err != nil {
+			panic(err)
+		}
 		c.JSON(http.StatusOK, gin.H{"list": service.GetPostList(info)})
 	}
 }

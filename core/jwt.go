@@ -2,9 +2,10 @@ package core
 
 import (
 	"fmt"
+	"log"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/rs/xid"
 )
 
@@ -42,55 +43,56 @@ type PayLoad struct {
 
 var cfg = GetConfig()
 
-// GenerateAccessToken export
-func GenerateAccessToken(obj interface{}) (string, string) {
+// GenerateToken export
+func GenerateToken(obj interface{}, typename string) string {
 	xidstr := xid.New().String()
 	jsonobj := EncodingJSON(obj)
+
+	var expiresAt int64
+	var key string
+	if typename == "access" {
+		expiresAt = time.Now().Add(time.Millisecond * 1000 * 60 * 5).Unix()
+		key = cfg.Jwt.AccessKey
+	} else {
+		expiresAt = time.Now().AddDate(0, 30, 0).Unix()
+		key = cfg.Jwt.RefreshKey
+	}
 
 	payload := PayLoad{
 		Data: jsonobj,
 		Xid:  xidstr,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Millisecond * 1000).Unix(),
+			ExpiresAt: expiresAt,
 			Issuer:    "dlog",
 		},
 	}
 	token := jwt.NewWithClaims(jwt.GetSigningMethod(cfg.Jwt.Alg), &payload)
-	tokenstr, _ := token.SignedString([]byte(cfg.Jwt.AccessKey))
+	tokenstr, _ := token.SignedString([]byte(key))
 
-	return tokenstr, xidstr
-}
-
-// GenerateRefreshToken export
-func GenerateRefreshToken(xidval string) string {
-	payload := struct {
-		Xid string
-		jwt.StandardClaims
-	}{
-		Xid: xidval,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().AddDate(0, 30, 0).Unix(),
-			Issuer:    "dlog",
-		},
-	}
-	token := jwt.NewWithClaims(jwt.GetSigningMethod(cfg.Jwt.Alg), payload)
-	tokenstr, _ := token.SignedString([]byte(cfg.Jwt.RefreshKey))
 	return tokenstr
 }
 
 // VaildAccessToken export
-func VaildAccessToken(tokenString string) (*PayLoad, uint32) {
+func VaildAccessToken(tokenString string) string {
 	decodeAccess, err := _decodeToken(tokenString, cfg.Jwt.AccessKey)
-	return decodeAccess, err
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	return string(decodeAccess.Data)
 }
 
 // VaildRefreshToken export
-func VaildRefreshToken(tokenString string) (*PayLoad, uint32) {
+func VaildRefreshToken(tokenString string) string {
 	decdoeRefresh, err := _decodeToken(tokenString, cfg.Jwt.RefreshKey)
-	return decdoeRefresh, err
+	if err != nil {
+		log.Println(err)
+		return ""
+	}
+	return string(decdoeRefresh.Data)
 }
 
-func _decodeToken(tokenString string, secret string) (*PayLoad, uint32) {
+func _decodeToken(tokenString string, secret string) (*PayLoad, *JwtException) {
 	var payload PayLoad
 	token, err := jwt.ParseWithClaims(tokenString, &payload, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -99,17 +101,17 @@ func _decodeToken(tokenString string, secret string) (*PayLoad, uint32) {
 		return []byte(secret), nil
 	})
 
-	var exception JwtException
+	var exception *JwtException
 	if err != nil {
 		parseE, _ := err.(*jwt.ValidationError)
 		if parseE.Errors == EXPIRED {
-			exception = JwtException{Code: EXPIRED}
+			exception = &JwtException{Code: EXPIRED}
 		} else {
-			exception = JwtException{Code: INVAILD}
+			exception = &JwtException{Code: INVAILD}
 		}
 	} else if !token.Valid {
-		exception = JwtException{Code: INVAILD}
+		exception = &JwtException{Code: INVAILD}
 	}
 
-	return &payload, exception.Code
+	return &payload, exception
 }

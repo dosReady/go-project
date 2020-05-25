@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"net/http"
+	"strings"
 	"time"
 
 	"github.com/dlog/controller"
@@ -16,7 +18,7 @@ func initializeDB() {
 	db := dao.Setup()
 	tx := db.Begin()
 
-	tx.AutoMigrate(&core.TbPost{}, &core.TbCategory{})
+	tx.AutoMigrate(&core.TbPost{}, &core.TbCategory{}, &core.TbUser{})
 
 	defer tx.Close()
 	defer db.Close()
@@ -31,16 +33,35 @@ func initializeDB() {
 
 }
 
+func vaildateAuth(c *gin.Context) {
+	log.Println("=============== 권한 체크  ================")
+	reqToken := c.Request.Header.Get("Authorization")
+	splitToken := strings.Split(reqToken, "Bearer")
+	if len(splitToken) != 2 {
+		c.JSON(http.StatusUnauthorized, gin.H{})
+		c.Abort()
+		return
+	}
+
+	token := core.VaildAccessToken(strings.TrimSpace(splitToken[1]))
+	if token == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{})
+		c.Abort()
+		return
+	}
+	c.Next()
+}
+
 func main() {
 
 	initializeDB()
 
 	r := gin.New()
-
+	r.Use(gin.Recovery())
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"POST"},
-		AllowHeaders:     []string{"Origin", "Content-Type"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
@@ -51,11 +72,17 @@ func main() {
 
 	api := r.Group("/api")
 	{
+		api.Use(vaildateAuth)
 		api.POST("/inst/post", controller.MngPost())
 		api.POST("/get/post", controller.GetPost())
 		api.POST("/get/postlist", controller.GetPostList())
-
 		api.POST("/get/categorylist", controller.GetCategoryList())
 	}
-	r.Run()
+
+	r.POST("/proc/login", controller.Login())
+	r.POST("/vaild/refresh", controller.VaildRefreshToken())
+
+	if err := r.Run(); err != nil {
+		log.Fatal(err)
+	}
 }

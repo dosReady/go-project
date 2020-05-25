@@ -121,7 +121,9 @@ func GetPostList(p core.INPostInfo) []core.OUTPostInfo {
 			UpdatedAt time.Time
 		}
 
-		db.ScanRows(rs, &object)
+		if err := db.ScanRows(rs, &object); err != nil {
+			panic(err)
+		}
 
 		item := core.OUTPostInfo{
 			TbPost: core.TbPost{
