@@ -34,6 +34,7 @@ type TbUser struct {
 	CommonModel
 }
 
+// UserJSON :
 type UserJSON struct {
 	LoginID      string `json:"LoginID"`
 	Password     string `json:"Password"`
@@ -42,10 +43,12 @@ type UserJSON struct {
 	AccessToken  string `json:"AccessToken"`
 }
 
+// UserInDTO :
 type UserInDTO struct {
 	UserJSON `json:"user"`
 }
 
+// UserOutDTO :
 type UserOutDTO struct {
 	LoginID      string `json:"LoginID"`
 	Role         string `json:"Role"`

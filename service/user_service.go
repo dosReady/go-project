@@ -5,7 +5,7 @@ import (
 	"github.com/dlog/dao"
 )
 
-// GetUser: 사용자를 가져온다.
+// GetUser exprot: 사용자를 가져온다.
 func GetUser(p core.UserJSON) *core.UserJSON {
 	db := dao.Setup()
 
@@ -21,7 +21,7 @@ func GetUser(p core.UserJSON) *core.UserJSON {
 	return &user
 }
 
-// ProcessLogin: 로그인 처리를한다.
+// ProcessLogin exprot: 로그인 처리를한다.
 func ProcessLogin(p core.UserInDTO) *core.UserOutDTO {
 	db := dao.Setup()
 
@@ -49,7 +49,7 @@ func ProcessLogin(p core.UserInDTO) *core.UserOutDTO {
 	return &user
 }
 
-// VaildRefreshToken: 리프레시 토큰 유효성 검사
+// VaildRefreshToken exprot: 리프레시 토큰 유효성 검사
 func VaildRefreshToken(p core.UserInDTO) string {
 	refreshToken := core.VaildRefreshToken(p.RefreshToken)
 

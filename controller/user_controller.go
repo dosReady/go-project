@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetUser export
 func GetUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var param core.UserJSON
@@ -19,6 +20,7 @@ func GetUser() gin.HandlerFunc {
 	}
 }
 
+// Login export
 func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var param core.UserInDTO
@@ -30,6 +32,7 @@ func Login() gin.HandlerFunc {
 	}
 }
 
+// VaildRefreshToken export
 func VaildRefreshToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var param core.UserInDTO

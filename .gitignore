@@ -3,3 +3,4 @@ go.mod
 go.sum
 launch.json
 debug
+__debug_bin

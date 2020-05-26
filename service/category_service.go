@@ -7,7 +7,7 @@ import (
 	"github.com/dlog/dao"
 )
 
-// GetCategoryList : PostID로 해당 카테고리를 조회한다.
+// GetCategoryList export : PostID로 해당 카테고리를 조회한다.
 func GetCategoryList(target string) []core.CategoryJSON {
 	db := dao.Setup()
 	defer db.Close()
@@ -22,7 +22,7 @@ func GetCategoryList(target string) []core.CategoryJSON {
 	return categoryList
 }
 
-// GetCategory : PostID로 해당 카테고리를 조회한다.
+// GetCategory export : PostID로 해당 카테고리를 조회한다.
 func GetCategory(postID uint32) core.TbCategory {
 	db := dao.Setup()
 	defer db.Close()
@@ -36,7 +36,7 @@ func GetCategory(postID uint32) core.TbCategory {
 	return result
 }
 
-// GetCategoryForTitle : 카테로고리 이름으로로 해당 카테고리를 조회한다.
+// GetCategoryForTitle export : 카테로고리 이름으로로 해당 카테고리를 조회한다.
 func GetCategoryForTitle(title string) core.TbCategory {
 	db := dao.Setup()
 	defer db.Close()
@@ -47,7 +47,7 @@ func GetCategoryForTitle(title string) core.TbCategory {
 	return result
 }
 
-// InsertCategory : 카테고리 정보 입력
+// InsertCategory export : 카테고리 정보 입력
 func InsertCategory(title string) uint32 {
 	db := dao.Setup()
 	defer db.Close()
