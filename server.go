@@ -18,7 +18,7 @@ func initializeDB() {
 	db := dao.Setup()
 	tx := db.Begin()
 
-	tx.AutoMigrate(&core.TbPost{}, &core.TbCategory{}, &core.TbUser{})
+	tx.AutoMigrate(core.TbPost{}, core.TbUser{}, core.TbTagMst{}, core.TbTagMap{})
 
 	defer tx.Close()
 	defer db.Close()
@@ -73,10 +73,9 @@ func main() {
 	api := r.Group("/api")
 	{
 		api.Use(vaildateAuth)
-		api.POST("/inst/post", controller.MngPost())
+		api.POST("/mng/post", controller.MngPost())
 		api.POST("/get/post", controller.GetPost())
 		api.POST("/get/postlist", controller.GetPostList())
-		api.POST("/get/categorylist", controller.GetCategoryList())
 	}
 
 	r.POST("/proc/login", controller.Login())

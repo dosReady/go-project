@@ -10,18 +10,24 @@ type CommonModel struct {
 
 // TbPost : Post 테이블 모델
 type TbPost struct {
-	PostID    uint32 `gorm:"primary_key;auto_increment"`
+	PostID    string `gorm:"type:bigserial;primary_key;auto_increment"`
 	MainTitle string `gorm:"type:varchar(100);not null;index:tb_post_idx1"`
+	SubTitle  string `gorm:"type:varchar(100);not null;index:tb_post_idx2"`
 	Content   string `gorm:"type:text;not null;"`
-	CtgID     uint32
 	CommonModel
 }
 
-// TbCategory : 카테고리 테이블 모델
-type TbCategory struct {
-	CtgID    uint32 `gorm:"primary_key;auto_increment"`
-	CtgTitle string `gorm:"type:varchar(100);not null;index:tb_tag_idx1"`
-	CtgAlias string `gorm:"type:varchar(255);not null;index:tb_tag_idx2"`
+// TbTagMst : Tag 마스터 테이블 모델
+type TbTagMst struct {
+	TagMstID string `gorm:"type:bigserial;primary_key;auto_increment"`
+	TagName  string `gorm:"type:varchar(100);not null;index:tb_tag_mst_idx1"`
+	CommonModel
+}
+
+// TbTagMap : Tag Post Mapping 테이블 모델
+type TbTagMap struct {
+	PostID   string `gorm:"type:bigserial;not null"`
+	TagMstID string `gorm:"type:bigserial;not null"`
 	CommonModel
 }
 
@@ -58,36 +64,22 @@ type UserOutDTO struct {
 
 // PostJSON export
 type PostJSON struct {
-	PostID    uint32 `json:"PostID"`
+	PostID    string `json:"PostID"`
 	MainTitle string `json:"MainTitle"`
 	SubTitle  string `json:"SubTitle"`
 	Content   string `json:"Content"`
 }
 
-// CategoryJSON export
-type CategoryJSON struct {
-	CtgID    uint32 `json:"CtgID,string"`
-	CtgTitle string `json:"CtgTitle"`
-	CtgAlias string `json:"CtgAlias"`
-	CtgCnt   uint32 `json:"CtgCnt"`
+// TagJSON :
+type TagJSON struct {
+	TagMstID string `json:"TagMstID"`
+	TagName  string `json:"TagName"`
 }
 
-// RsPostInfo export
-type RsPostInfo struct {
-	PostID    uint32
-	MainTitle string
-	CtgID     uint32
-	CtgTitle  string
-}
+/* ========================= DTO  ===========================*/
 
-// OUTPostInfo : QUERY 결과 VO
-type OUTPostInfo struct {
-	TbPost     `json:"post"`
-	TbCategory `json:"ctg"`
-}
-
-// INPostInfo : 입력 VO
-type INPostInfo struct {
-	PostJSON     `json:"info"`
-	CategoryJSON `json:"category"`
+// PostDTO : Post 입력 DTO
+type PostDTO struct {
+	PostJSON `json:"post"`
+	TagJSON  []TagJSON `json:"tags"`
 }

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/dlog/core"
 	"github.com/dlog/service"
@@ -11,39 +12,44 @@ import (
 // MngPost export
 func MngPost() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var info core.INPostInfo
-		if err := c.ShouldBind(&info); err != nil {
+		var param core.PostDTO
+
+		if err := c.ShouldBind(&param); err != nil {
 			panic(err)
 		}
 
-		if info.PostJSON.PostID > 0 {
-			service.UpdPost(info)
+		postID, _ := strconv.ParseInt(param.PostID, 10, 32)
+		if postID > 0 {
+			service.UpdPost(param)
 		} else {
-			service.InstPost(info)
+			service.InstPost(param)
 		}
 		c.JSON(http.StatusOK, gin.H{})
 	}
 }
 
-// GetPost export
+// GetPost : Post 상세정보 가져오기
 func GetPost() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var postInfo core.INPostInfo
-		if err := c.ShouldBind(&postInfo); err != nil {
+		var param core.PostDTO
+
+		if err := c.ShouldBind(&param); err != nil {
 			panic(err)
 		}
-		result := service.GetPost(postInfo)
-		c.JSON(http.StatusOK, gin.H{"info": result.TbPost, "category": result.TbCategory})
+
+		post, tags := service.GetPost(param)
+		c.JSON(http.StatusOK, gin.H{"post": post, "tags": tags})
 	}
 }
 
-// GetPostList export
+// GetPostList : Post 목록 가져오기
 func GetPostList() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var info core.INPostInfo
-		if err := c.ShouldBind(&info); err != nil {
+		var param core.PostDTO
+
+		if err := c.ShouldBind(&param); err != nil {
 			panic(err)
 		}
-		c.JSON(http.StatusOK, gin.H{"list": service.GetPostList(info)})
+		c.JSON(http.StatusOK, gin.H{"list": service.GetPostList(param)})
 	}
 }

@@ -8,137 +8,83 @@ import (
 )
 
 // InstPost export
-func InstPost(p core.INPostInfo) {
-	db := dao.Setup()
-	defer db.Close()
-
-	var ctgID uint32
-	rs := GetCategoryForTitle(p.CategoryJSON.CtgTitle)
-	ctgID = rs.CtgID
-	if ctgID == 0 {
-		category := core.TbCategory{
-			CtgTitle: p.CategoryJSON.CtgTitle,
+func InstPost(p core.PostDTO) {
+	db := dao.Setup().Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			db.Rollback()
+		} else {
+			db.Commit()
 		}
 
-		db.Create(&category)
-		db.NewRecord(category)
-
-		ctgID = category.CtgID
-	}
+		db.Close()
+	}()
 
 	post := core.TbPost{
 		MainTitle: p.PostJSON.MainTitle,
+		SubTitle:  p.PostJSON.SubTitle,
 		Content:   p.PostJSON.Content,
-		CtgID:     ctgID,
 	}
 
 	db.Create(&post)
 	db.NewRecord(post)
 
+	InputTag(post.PostID, p.TagJSON, db)
+
+	if err := db.Error; err != nil {
+		panic(err)
+	}
+
 }
 
 // UpdPost export
-func UpdPost(p core.INPostInfo) {
-	db := dao.Setup()
-	defer db.Close()
+func UpdPost(p core.PostDTO) {
+	db := dao.Setup().Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			db.Rollback()
+		} else {
+			db.Commit()
+		}
 
-	var ctgID uint32
-	if rs := GetCategoryForTitle(p.CategoryJSON.CtgTitle); rs.CtgID > 0 {
-		ctgID = rs.CtgID
-	} else {
-		ctgID = InsertCategory(p.CategoryJSON.CtgTitle)
-	}
+		db.Close()
+	}()
 
-	db.Table("tb_posts").
-		Where("tb_posts.post_id = ?", p.PostJSON.PostID).
-		Updates(core.TbPost{MainTitle: p.PostJSON.MainTitle,
-			Content: p.PostJSON.Content, CtgID: ctgID, CommonModel: core.CommonModel{UpdatedAt: time.Now()}})
-
-}
-
-// GetPost export
-func GetPost(p core.INPostInfo) core.OUTPostInfo {
-	db := dao.Setup()
-	defer db.Close()
-
-	var rs struct {
-		PostID    uint32
-		MainTitle string
-		Content   string
-		CtgID     uint32
-		CtgTitle  string
-	}
-
-	db.Select(`t1.post_id,
-	t1.main_title,
-	t1."content",
-	t1.ctg_id,
-	t2.ctg_title`).
-		Table("tb_posts t1").
-		Joins("LEFT OUTER JOIN tb_categories as t2 ON t1.ctg_id = t2.ctg_id").
-		Where("t1.post_id = ?", p.PostJSON.PostID).Scan(&rs)
-
-	postInfo := core.OUTPostInfo{
-		TbPost: core.TbPost{
-			PostID:    rs.PostID,
-			MainTitle: rs.MainTitle,
-			Content:   rs.Content,
-		},
-		TbCategory: core.TbCategory{
-			CtgID:    rs.CtgID,
-			CtgTitle: rs.CtgTitle,
+	var post = core.TbPost{
+		PostID:    p.PostJSON.PostID,
+		MainTitle: p.PostJSON.MainTitle,
+		SubTitle:  p.PostJSON.SubTitle,
+		Content:   p.PostJSON.Content,
+		CommonModel: core.CommonModel{
+			UpdatedAt: time.Now(),
 		},
 	}
+	db.Save(&post)
+	DelTagMaps(post.PostID)
+	InputTag(post.PostID, p.TagJSON, db)
 
-	return postInfo
+	if err := db.Error; err != nil {
+		panic(err)
+	}
 }
 
-// GetPostList export
-func GetPostList(p core.INPostInfo) []core.OUTPostInfo {
+// GetPost : Post 상세 가져오기
+func GetPost(p core.PostDTO) (post core.TbPost, tags []core.TbTagMst) {
 	db := dao.Setup()
 	defer db.Close()
 
-	db = db.Select(`t1.post_id, t1.main_title, t1."content", t1.ctg_id, t2.ctg_title, t1.updated_at`).
-		Table("tb_posts t1").
-		Joins("LEFT OUTER JOIN tb_categories as t2 ON t1.ctg_id = t2.ctg_id").
-		Order("updated_at DESC")
+	db.Where("post_id = ?", p.PostID).First(&post)
 
-	if p.CategoryJSON.CtgID > 0 {
-		db = db.Where("t1.ctg_id = ?", p.CategoryJSON.CtgID)
-	}
+	tags = GetTagsMap(p.PostID)
 
-	rs, _ := db.Rows()
+	return post, tags
+}
 
-	var list []core.OUTPostInfo
-	for rs.Next() {
+// GetPostList : Post 목록 가져오기
+func GetPostList(p core.PostDTO) (postList []core.TbPost) {
+	db := dao.Setup()
+	defer db.Close()
 
-		var object struct {
-			PostID    uint32
-			MainTitle string
-			Content   string
-			CtgID     uint32
-			CtgTitle  string
-			UpdatedAt time.Time
-		}
-
-		if err := db.ScanRows(rs, &object); err != nil {
-			panic(err)
-		}
-
-		item := core.OUTPostInfo{
-			TbPost: core.TbPost{
-				PostID:      object.PostID,
-				MainTitle:   object.MainTitle,
-				Content:     object.Content,
-				CommonModel: core.CommonModel{UpdatedAt: object.UpdatedAt},
-			},
-			TbCategory: core.TbCategory{
-				CtgID:    object.CtgID,
-				CtgTitle: object.CtgTitle,
-			},
-		}
-		list = append(list, item)
-	}
-
-	return list
+	db.Find(&postList)
+	return postList
 }
