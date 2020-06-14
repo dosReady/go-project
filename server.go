@@ -76,6 +76,7 @@ func main() {
 		api.POST("/mng/post", controller.MngPost())
 		api.POST("/get/post", controller.GetPost())
 		api.POST("/get/postlist", controller.GetPostList())
+		api.POST("/get/taglist", controller.GetTagList())
 	}
 
 	r.POST("/proc/login", controller.Login())

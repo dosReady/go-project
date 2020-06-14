@@ -58,3 +58,12 @@ func DelTagMaps(paramPostID string) {
 	}
 	db.Where(tagMaps).Delete(tagMaps)
 }
+
+// GetTagList :
+func GetTagList() (list []core.TbTagMst) {
+	db := dao.Setup()
+	defer db.Close()
+
+	db.Find(&list)
+	return list
+}

@@ -81,10 +81,33 @@ func GetPost(p core.PostDTO) (post core.TbPost, tags []core.TbTagMst) {
 }
 
 // GetPostList : Post 목록 가져오기
-func GetPostList(p core.PostDTO) (postList []core.TbPost) {
+func GetPostList(p core.PostDTO) interface{} {
 	db := dao.Setup()
 	defer db.Close()
 
-	db.Find(&postList)
-	return postList
+	var post []struct {
+		PostID    string
+		MainTitle string
+		SubTitle  string
+		Content   string
+		TagsJSON  string
+		UpdatedAt time.Time
+	}
+	db.Select(`
+			t1.post_id
+		,	t1.main_title
+		,	t1.sub_title
+		,	t1.content
+		,	t1.updated_at
+		,	array_to_json(array_agg(coalesce(t3.tag_name, ''))) as tags_json
+	`).Table("tb_posts t1").
+		Joins("left outer join tb_tag_maps t2 on t1.post_id = t2.post_id").
+		Joins("left outer join tb_tag_msts t3 on t2.tag_mst_id = t3.tag_mst_id").
+		Group(`t1.post_id
+	,	t1.main_title
+	,	t1.sub_title
+	,	t1.content
+	,	t1.updated_at`).
+		Order("t1.created_at desc").Find(&post)
+	return post
 }
