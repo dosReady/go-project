@@ -93,7 +93,7 @@ func GetPostList(p core.PostDTO) interface{} {
 		TagsJSON  string
 		UpdatedAt time.Time
 	}
-	db.Select(`
+	db = db.Select(`
 			t1.post_id
 		,	t1.main_title
 		,	t1.sub_title
@@ -108,6 +108,14 @@ func GetPostList(p core.PostDTO) interface{} {
 	,	t1.sub_title
 	,	t1.content
 	,	t1.updated_at`).
-		Order("t1.created_at desc").Find(&post)
+		Order("t1.created_at desc")
+
+	if len(p.MainTitle) > 0 {
+		db = db.Where(`t1.main_title like '%'||?||'%' 
+			or t1.sub_title like '%'||?||'%'
+			or t1.content like '%'||?||'%'
+		`, p.MainTitle, p.SubTitle, p.Content)
+	}
+	db.Find(&post)
 	return post
 }
