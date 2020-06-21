@@ -74,6 +74,7 @@ func main() {
 	{
 		api.Use(vaildateAuth)
 		api.POST("/mng/post", controller.MngPost())
+		api.POST("/del/post", controller.DelPost())
 		api.POST("/get/post", controller.GetPost())
 		api.POST("/get/postlist", controller.GetPostList())
 		api.POST("/get/taglist", controller.GetTagList())

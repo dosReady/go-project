@@ -28,6 +28,20 @@ func MngPost() gin.HandlerFunc {
 	}
 }
 
+// DelPost export
+func DelPost() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var param core.PostDTO
+
+		if err := c.ShouldBind(&param); err != nil {
+			panic(err)
+		}
+
+		service.DelPost(param)
+		c.JSON(http.StatusOK, gin.H{})
+	}
+}
+
 // GetPost : Post 상세정보 가져오기
 func GetPost() gin.HandlerFunc {
 	return func(c *gin.Context) {

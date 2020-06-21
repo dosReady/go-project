@@ -1,6 +1,8 @@
 package service
 
 import (
+	"log"
+	"strings"
 	"time"
 
 	"github.com/dlog/core"
@@ -68,6 +70,35 @@ func UpdPost(p core.PostDTO) {
 	}
 }
 
+// DelPost : Post 삭제
+func DelPost(p core.PostDTO) {
+	db := dao.Setup().Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println(r)
+			db.Rollback()
+		} else {
+			db.Commit()
+		}
+
+		db.Close()
+	}()
+
+	var models []core.TbTagMap
+	db.Where(core.TbTagMap{PostID: p.PostID}).Find(&models)
+
+	var mstIDarr []string
+	for i := 0; i < len(models); i++ {
+		mstIDarr = append(mstIDarr, models[i].TagMstID)
+	}
+
+	if len(mstIDarr) > 0 {
+		db.Where("tag_mst_id in(?)", mstIDarr).Delete(core.TbTagMap{})
+	}
+
+	db.Where("post_id = ?", p.PostID).Delete(core.TbPost{})
+}
+
 // GetPost : Post 상세 가져오기
 func GetPost(p core.PostDTO) (post core.TbPost, tags []core.TbTagMst) {
 	db := dao.Setup()
@@ -111,10 +142,17 @@ func GetPostList(p core.PostDTO) interface{} {
 		Order("t1.created_at desc")
 
 	if len(p.MainTitle) > 0 {
-		db = db.Where(`t1.main_title like '%'||?||'%' 
+		if strings.Index(p.MainTitle, "#") == 0 {
+			db = db.Where(`
+				t3.tag_name = ? 
+			`, strings.Replace(p.MainTitle, "#", "", 1))
+		} else {
+			db = db.Where(`t1.main_title like '%'||?||'%' 
 			or t1.sub_title like '%'||?||'%'
 			or t1.content like '%'||?||'%'
-		`, p.MainTitle, p.SubTitle, p.Content)
+			`, p.MainTitle, p.SubTitle, p.Content)
+		}
+
 	}
 	db.Find(&post)
 	return post
