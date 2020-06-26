@@ -64,6 +64,12 @@ func GetTagList() (list []core.TbTagMst) {
 	db := dao.Setup()
 	defer db.Close()
 
-	db.Find(&list)
+	db.Select(`
+		  t1.tag_mst_id
+		, t1.tag_name
+	`).Table("tb_tag_msts t1").
+		Joins("inner join tb_tag_maps t2 on t1.tag_mst_id = t2.tag_mst_id").
+		Group("t1.tag_mst_id, t1.tag_name having count(t2.post_id) > 0").Scan(&list)
+
 	return list
 }

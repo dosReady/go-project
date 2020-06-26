@@ -12,7 +12,7 @@ type CommonModel struct {
 type TbPost struct {
 	PostID    string `gorm:"type:bigserial;primary_key;auto_increment"`
 	MainTitle string `gorm:"type:varchar(100);not null;index:tb_post_idx1"`
-	SubTitle  string `gorm:"type:varchar(100);not null;index:tb_post_idx2"`
+	SubTitle  string `gorm:"type:varchar(200);not null;index:tb_post_idx2"`
 	Content   string `gorm:"type:text;not null;"`
 	CommonModel
 }
