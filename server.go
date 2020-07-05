@@ -38,14 +38,14 @@ func vaildateAuth(c *gin.Context) {
 	reqToken := c.Request.Header.Get("Authorization")
 	splitToken := strings.Split(reqToken, "Bearer")
 	if len(splitToken) != 2 {
-		c.JSON(http.StatusUnauthorized, gin.H{})
+		c.JSON(http.StatusOK, gin.H{"errormsg": "access"})
 		c.Abort()
 		return
 	}
 
 	token := core.VaildAccessToken(strings.TrimSpace(splitToken[1]))
 	if token == "" {
-		c.JSON(http.StatusUnauthorized, gin.H{})
+		c.JSON(http.StatusOK, gin.H{"errormsg": "access"})
 		c.Abort()
 		return
 	}

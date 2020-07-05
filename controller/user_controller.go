@@ -48,7 +48,7 @@ func VaildRefreshToken() gin.HandlerFunc {
 			}
 			c.JSON(http.StatusOK, gin.H{"user": json})
 		} else {
-			c.JSON(http.StatusForbidden, gin.H{})
+			c.JSON(http.StatusOK, gin.H{"errormsg": "refresh"})
 		}
 	}
 }
