@@ -81,6 +81,7 @@ func main() {
 	}
 
 	r.POST("/proc/login", controller.Login())
+	r.POST("/proc/logout", controller.Logout())
 	r.POST("/vaild/refresh", controller.VaildRefreshToken())
 
 	if err := r.Run(); err != nil {

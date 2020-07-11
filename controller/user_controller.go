@@ -32,6 +32,18 @@ func Login() gin.HandlerFunc {
 	}
 }
 
+// Logout export
+func Logout() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var param core.UserInDTO
+		if err := c.ShouldBindJSON(&param); err != nil {
+			panic(err)
+		}
+		service.ProcessLogout(param)
+		c.JSON(http.StatusOK, gin.H{"ok": "true"})
+	}
+}
+
 // VaildRefreshToken export
 func VaildRefreshToken() gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -52,7 +52,7 @@ func GenerateToken(obj interface{}, typename string) string {
 	var key string
 	if typename == "access" {
 		//expiresAt = time.Now().Add(time.Millisecond * 1000 * 60 * 5).Unix()
-		expiresAt = time.Now().Add(time.Millisecond * 1000 * 5).Unix()
+		expiresAt = time.Now().Add(time.Millisecond * 1000 * 60 * 30).Unix()
 		key = cfg.Jwt.AccessKey
 	} else {
 		expiresAt = time.Now().AddDate(0, 30, 0).Unix()

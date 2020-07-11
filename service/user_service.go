@@ -8,7 +8,7 @@ import (
 // GetUser exprot: 사용자를 가져온다.
 func GetUser(p core.UserJSON) *core.UserJSON {
 	db := dao.Setup()
-
+	defer db.Close()
 	var user core.UserJSON
 
 	db.Select(`
@@ -24,6 +24,7 @@ func GetUser(p core.UserJSON) *core.UserJSON {
 // ProcessLogin exprot: 로그인 처리를한다.
 func ProcessLogin(p core.UserInDTO) *core.UserOutDTO {
 	db := dao.Setup()
+	defer db.Close()
 
 	var user core.UserOutDTO
 	db.Select(`
@@ -47,6 +48,14 @@ func ProcessLogin(p core.UserInDTO) *core.UserOutDTO {
 	}
 
 	return &user
+}
+
+// ProcessLogout export: 로그아웃 처리를 한다.
+func ProcessLogout(p core.UserInDTO) {
+	db := dao.Setup()
+	defer db.Close()
+	db.Table("tb_users").Where("login_id = ?", p.LoginID).
+		Updates(core.TbUser{RefreshToken: " "})
 }
 
 // VaildRefreshToken exprot: 리프레시 토큰 유효성 검사

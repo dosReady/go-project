@@ -19,6 +19,8 @@ func Setup() *gorm.DB {
 	dbinfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s",
 		dbMeta.Host, dbMeta.Port, dbMeta.User, dbMeta.Password, dbMeta.Database)
 	db, err = gorm.Open("postgres", dbinfo)
+	db.DB().SetMaxIdleConns(5)
+	db.DB().SetMaxOpenConns(10)
 	db.LogMode(true)
 	if err != nil {
 		log.Fatal(err.Error())
