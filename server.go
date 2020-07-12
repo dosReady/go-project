@@ -89,7 +89,7 @@ func main() {
 
 	mode := os.Getenv("SERVER_MODE")
 	if mode != "" {
-		err := http.ListenAndServeTLS(":8080", "server.crt", "server.key", nil)
+		err := http.ListenAndServeTLS(":8080", "/app/server.crt", "/app/server.key", nil)
 		if err != nil {
 			log.Fatal("ListenAndServe: ", err)
 		}
