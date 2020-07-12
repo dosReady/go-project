@@ -66,7 +66,9 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		AllowOriginFunc: func(origin string) bool {
-			return origin == "https://dosready.github.io/"
+			log.Println("origin: " + origin)
+
+			return true
 		},
 		MaxAge: 12 * time.Hour,
 	}))
