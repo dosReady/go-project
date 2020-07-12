@@ -74,7 +74,7 @@ func main() {
 		MaxAge: 12 * time.Hour,
 	}))
 
-	api := r.Group("/api")
+	api := r.Group("")
 	{
 		api.Use(vaildateAuth)
 		api.POST("/mng/post", controller.MngPost())
