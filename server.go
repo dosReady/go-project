@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -83,6 +84,14 @@ func main() {
 	r.POST("/proc/login", controller.Login())
 	r.POST("/proc/logout", controller.Logout())
 	r.POST("/vaild/refresh", controller.VaildRefreshToken())
+
+	mode := os.Getenv("SERVER_MODE")
+	if mode != "" {
+		err := http.ListenAndServeTLS(":8080", "server.crt", "server.key", nil)
+		if err != nil {
+			log.Fatal("ListenAndServe: ", err)
+		}
+	}
 
 	if err := r.Run(); err != nil {
 		log.Fatal(err)
