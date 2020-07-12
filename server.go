@@ -65,7 +65,10 @@ func main() {
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "https://dosready.github.io/"
+		},
+		MaxAge: 12 * time.Hour,
 	}))
 
 	api := r.Group("/api")
