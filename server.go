@@ -12,6 +12,7 @@ import (
 	"github.com/dlog/dao"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 func initializeDB() {
@@ -89,13 +90,24 @@ func main() {
 
 	mode := os.Getenv("SERVER_MODE")
 	if mode != "" {
-		err := http.ListenAndServeTLS(":8080", "/app/server.crt", "/app/server.key", nil)
-		if err != nil {
-			log.Fatal("ListenAndServe: ", err)
-		}
-	}
 
-	if err := r.Run(); err != nil {
-		log.Fatal(err)
+		m := autocert.Manager{
+			Prompt:     autocert.AcceptTOS,
+			HostPolicy: autocert.HostWhitelist("dosready.github.io"),
+		}
+
+		s := &http.Server{
+			Addr:      ":https",
+			TLSConfig: m.TLSConfig(),
+			Handler:   r,
+		}
+
+		go log.Fatal(http.ListenAndServe(":http", m.HTTPHandler(nil)))
+
+		log.Fatal(s.ListenAndServeTLS("", ""))
+	} else {
+		if err := r.Run(); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
