@@ -89,7 +89,8 @@ func main() {
 	r.POST("/vaild/refresh", controller.VaildRefreshToken())
 
 	mode := os.Getenv("SERVER_MODE")
-	if mode != "" {
+
+	if len(mode) == 0 {
 
 		m := autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
@@ -103,9 +104,12 @@ func main() {
 			Handler:   r,
 		}
 
-		go log.Fatal(http.ListenAndServe(":http", m.HTTPHandler(nil)))
+		go func() {
+			log.Fatal(http.ListenAndServe(":http", m.HTTPHandler(nil)))
+		}()
 
 		log.Fatal(s.ListenAndServeTLS("", ""))
+
 	} else {
 		if err := r.Run(); err != nil {
 			log.Fatal(err)
