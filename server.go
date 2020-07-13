@@ -90,7 +90,7 @@ func main() {
 
 	mode := os.Getenv("SERVER_MODE")
 
-	if len(mode) == 0 {
+	if mode == "oper" {
 
 		m := autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
