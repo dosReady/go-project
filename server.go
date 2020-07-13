@@ -94,7 +94,7 @@ func main() {
 
 		m := autocert.Manager{
 			Prompt:     autocert.AcceptTOS,
-			HostPolicy: autocert.HostWhitelist("dveloper.me", "dosready.github.io"),
+			HostPolicy: autocert.HostWhitelist("api.dveloper.me"),
 			Cache:      autocert.DirCache("/app"),
 		}
 
