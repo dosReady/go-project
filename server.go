@@ -104,6 +104,8 @@ func main() {
 			Handler:   r,
 		}
 
+		s.TLSConfig.InsecureSkipVerify = true
+
 		go func() {
 			log.Fatal(http.ListenAndServe(":http", m.HTTPHandler(nil)))
 		}()
