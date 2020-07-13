@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"log"
 	"net/http"
 	"os"
@@ -99,12 +100,13 @@ func main() {
 		}
 
 		s := &http.Server{
-			Addr:      ":https",
-			TLSConfig: m.TLSConfig(),
-			Handler:   r,
+			Addr: ":https",
+			TLSConfig: &tls.Config{
+				GetCertificate:     m.GetCertificate,
+				InsecureSkipVerify: true,
+			},
+			Handler: r,
 		}
-
-		s.TLSConfig.InsecureSkipVerify = true
 
 		go func() {
 			log.Fatal(http.ListenAndServe(":http", m.HTTPHandler(nil)))
