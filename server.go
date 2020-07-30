@@ -77,7 +77,7 @@ func main() {
 
 	api := r.Group("")
 	{
-		api.Use(vaildateAuth)
+		//api.Use(vaildateAuth)
 		api.POST("/mng/post", controller.MngPost())
 		api.POST("/del/post", controller.DelPost())
 		api.POST("/get/post", controller.GetPost())

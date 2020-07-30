@@ -122,14 +122,16 @@ func GetPostList(p core.PostDTO) interface{} {
 		SubTitle  string
 		Content   string
 		TagsJSON  string
-		UpdatedAt time.Time
+		CreatedAt string
+		UpdatedAt string
 	}
 	db = db.Select(`
 			t1.post_id
 		,	t1.main_title
 		,	t1.sub_title
 		,	t1.content
-		,	t1.updated_at
+		,	to_char(t1.created_at, 'Mon dd, YYYY') as created_at
+		,   to_char(t1.updated_at, 'Mon dd, YYYY') as updated_at
 		,	array_to_json(array_agg(coalesce(t3.tag_name, ''))) as tags_json
 	`).Table("tb_posts t1").
 		Joins("left outer join tb_tag_maps t2 on t1.post_id = t2.post_id").
