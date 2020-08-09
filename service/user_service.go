@@ -34,11 +34,20 @@ func ProcessLogin(p core.UserInDTO) *core.UserOutDTO {
 		Where("login_id = ? and password = ?", p.LoginID, p.Password).Scan(&user)
 
 	if &user != nil {
+		type pType struct {
+			LoginID string
+			ROLE    string
+		}
+
 		// accessToken 발급
-		accessToken := core.GenerateToken(p, "access")
+		accessToken := core.GenerateToken(pType{}, "access")
 
 		// refreshToken 발급
-		refreshToken := core.GenerateToken(p, "refresh")
+		param := pType{
+			LoginID: user.LoginID,
+			ROLE:    user.Role,
+		}
+		refreshToken := core.GenerateToken(param, "refresh")
 
 		user.AccessToken = accessToken
 		user.RefreshToken = refreshToken
@@ -59,7 +68,10 @@ func ProcessLogout(p core.UserInDTO) {
 }
 
 // VaildRefreshToken exprot: 리프레시 토큰 유효성 검사
-func VaildRefreshToken(p core.UserInDTO) string {
+func VaildRefreshToken(p struct {
+	LoginID      string `json:"LoginID"`
+	RefreshToken string `json:"RefreshToken"`
+}) string {
 	refreshToken := core.VaildRefreshToken(p.RefreshToken)
 
 	// 토큰 유효성 검사
@@ -67,19 +79,22 @@ func VaildRefreshToken(p core.UserInDTO) string {
 		return ""
 	}
 
+	var userParam = core.UserJSON{
+		LoginID: p.LoginID,
+	}
+
 	// DB 내용과 검사
-	if user := GetUser(p.UserJSON); user != nil {
+	if user := GetUser(userParam); user != nil {
 		if user.RefreshToken != p.RefreshToken {
 			return ""
 		}
-
-		// if user.AccessToken != p.AccessToken {
-		// 	return ""
-		// }
 	}
 
 	// Refresh Token이 유효하면 AccessToken 재발급
-	var strgeInfo core.UserJSON
-	core.DecodingJSON([]byte(refreshToken), &strgeInfo)
-	return core.GenerateToken(strgeInfo, "access")
+	var param struct {
+		LoginID string
+		ROLE    string
+	}
+	core.DecodingJSON([]byte(refreshToken), &param)
+	return core.GenerateToken(param, "access")
 }

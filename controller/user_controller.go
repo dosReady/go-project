@@ -47,20 +47,26 @@ func Logout() gin.HandlerFunc {
 // VaildRefreshToken export
 func VaildRefreshToken() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var param core.UserInDTO
+		var param struct {
+			LoginID      string `json:"LoginID"`
+			RefreshToken string `json:"RefreshToken"`
+		}
 		core.GetJSON(c, &param)
 
 		rtn := service.VaildRefreshToken(param)
 		if rtn != "" {
-			json := core.UserJSON{
-				LoginID:      param.LoginID,
-				Role:         param.Role,
-				AccessToken:  rtn,
-				RefreshToken: param.RefreshToken,
+			var json = struct {
+				LoginID      string
+				AccessToken  string
+				RefreshToken string
+			}{
+				param.LoginID,
+				rtn,
+				param.RefreshToken,
 			}
-			c.JSON(http.StatusOK, gin.H{"user": json})
+			c.JSON(http.StatusOK, gin.H{"token": json})
 		} else {
-			c.JSON(http.StatusOK, gin.H{"errormsg": "refresh"})
+			c.JSON(http.StatusOK, gin.H{"token": ""})
 		}
 	}
 }

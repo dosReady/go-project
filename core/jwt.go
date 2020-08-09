@@ -44,14 +44,23 @@ type PayLoad struct {
 var cfg = GetConfig()
 
 // GenerateToken export
-func GenerateToken(obj interface{}, typename string) string {
+func GenerateToken(obj struct {
+	LoginID string
+	ROLE    string
+}, typename string) string {
 	xidstr := xid.New().String()
-	jsonobj := EncodingJSON(obj)
+
+	var jsonobj []byte
+	if obj != struct {
+		LoginID string
+		ROLE    string
+	}{} {
+		jsonobj = EncodingJSON(obj)
+	}
 
 	var expiresAt int64
 	var key string
 	if typename == "access" {
-		//expiresAt = time.Now().Add(time.Millisecond * 1000 * 60 * 5).Unix()
 		expiresAt = time.Now().Add(time.Millisecond * 1000 * 60 * 30).Unix()
 		key = cfg.Jwt.AccessKey
 	} else {
