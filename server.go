@@ -37,20 +37,17 @@ func initializeDB() {
 }
 
 func vaildateAuth(c *gin.Context) {
+
 	log.Println("=============== 권한 체크  ================")
 	reqToken := c.Request.Header.Get("Authorization")
 	splitToken := strings.Split(reqToken, "Bearer")
 	if len(splitToken) != 2 {
 		c.JSON(http.StatusOK, gin.H{"errormsg": "access"})
-		c.Abort()
-		return
 	}
 
 	token := core.VaildAccessToken(strings.TrimSpace(splitToken[1]))
 	if token == "" {
 		c.JSON(http.StatusOK, gin.H{"errormsg": "access"})
-		c.Abort()
-		return
 	}
 	c.Next()
 }
@@ -83,6 +80,9 @@ func main() {
 		api.POST("/get/post", controller.GetPost())
 		api.POST("/get/postlist", controller.GetPostList())
 		api.POST("/get/taglist", controller.GetTagList())
+		api.POST("/echo", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"test": "!!!"})
+		})
 	}
 
 	r.POST("/proc/login", controller.Login())

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/dlog/core"
@@ -28,6 +29,7 @@ func Login() gin.HandlerFunc {
 			panic(err)
 		}
 
+		log.Println(c.Cookie("app_cookie"))
 		c.JSON(http.StatusOK, gin.H{"user": service.ProcessLogin(param)})
 	}
 }
