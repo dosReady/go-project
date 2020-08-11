@@ -8,8 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dlog/controller"
 	"github.com/dlog/core"
+
+	"github.com/dlog/controller"
 	"github.com/dlog/dao"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,7 @@ func initializeDB() {
 	db := dao.Setup()
 	tx := db.Begin()
 
-	tx.AutoMigrate(core.TbPost{}, core.TbUser{}, core.TbTagMst{}, core.TbTagMap{})
+	tx.AutoMigrate(dao.TbUser{}, dao.TbPost{})
 
 	defer tx.Close()
 	defer db.Close()
@@ -36,19 +37,18 @@ func initializeDB() {
 
 }
 
-func vaildateAuth(c *gin.Context) {
-
+func checkAuth(c *gin.Context) {
 	log.Println("=============== 권한 체크  ================")
-	reqToken := c.Request.Header.Get("Authorization")
-	splitToken := strings.Split(reqToken, "Bearer")
-	if len(splitToken) != 2 {
-		c.JSON(http.StatusOK, gin.H{"errormsg": "access"})
+	sHeader := c.Request.Header.Get("Authorization")
+	sToken := strings.Replace(sHeader, "Bearer", "", 1)
+	sDecodeData := core.VaildToken(strings.TrimSpace(sToken))
+	log.Println(sDecodeData)
+	if len(sDecodeData) == 0 {
+		c.JSON(http.StatusUnauthorized, gin.H{})
+		c.Abort()
+		return
 	}
 
-	token := core.VaildAccessToken(strings.TrimSpace(splitToken[1]))
-	if token == "" {
-		c.JSON(http.StatusOK, gin.H{"errormsg": "access"})
-	}
 	c.Next()
 }
 
@@ -74,20 +74,18 @@ func main() {
 
 	api := r.Group("")
 	{
-		api.Use(vaildateAuth)
-		api.POST("/mng/post", controller.MngPost())
-		api.POST("/del/post", controller.DelPost())
+		api.Use(checkAuth)
+		api.POST("/add/post", controller.AddPost())
+		api.POST("/remove/post", controller.RemovePost())
 		api.POST("/get/post", controller.GetPost())
 		api.POST("/get/postlist", controller.GetPostList())
-		api.POST("/get/taglist", controller.GetTagList())
 		api.POST("/echo", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"test": "!!!"})
 		})
 	}
 
-	r.POST("/proc/login", controller.Login())
-	r.POST("/proc/logout", controller.Logout())
-	r.POST("/vaild/refresh", controller.VaildRefreshToken())
+	r.POST("/user/login", controller.UserLogIn())
+	r.POST("/user/logout", controller.UserLogOut())
 
 	mode := os.Getenv("SERVER_MODE")
 

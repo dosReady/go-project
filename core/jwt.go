@@ -44,33 +44,18 @@ type PayLoad struct {
 var cfg = GetConfig()
 
 // GenerateToken export
-func GenerateToken(obj struct {
-	LoginID string
-	ROLE    string
-}, typename string) string {
+func GenerateToken(jsonbyte []byte) string {
 	xidstr := xid.New().String()
-
-	var jsonobj []byte
-	if obj != struct {
-		LoginID string
-		ROLE    string
-	}{} {
-		jsonobj = EncodingJSON(obj)
-	}
 
 	var expiresAt int64
 	var key string
-	if typename == "access" {
-		expiresAt = time.Now().Add(time.Millisecond * 1000 * 5).Unix()
-		//expiresAt = time.Now().Add(time.Millisecond * 1000 * 60 * 30).Unix()
-		key = cfg.Jwt.AccessKey
-	} else {
-		expiresAt = time.Now().AddDate(0, 30, 0).Unix()
-		key = cfg.Jwt.RefreshKey
-	}
+	expiresAt = time.Now().AddDate(0, 30, 0).Unix()
+	//expiresAt = time.Now().Add(time.Millisecond * 1000 * 5).Unix()
+	//expiresAt = time.Now().Add(time.Millisecond * 1000 * 60 * 30).Unix()
+	key = cfg.Jwt.AccessKey
 
 	payload := PayLoad{
-		Data: jsonobj,
+		Data: jsonbyte,
 		Xid:  xidstr,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expiresAt,
@@ -83,24 +68,18 @@ func GenerateToken(obj struct {
 	return tokenstr
 }
 
-// VaildAccessToken export
-func VaildAccessToken(tokenString string) string {
-	decodeAccess, err := _decodeToken(tokenString, cfg.Jwt.AccessKey)
-	if err != nil {
-		log.Println(err)
+// VaildToken export
+func VaildToken(tokenString string) string {
+	if len(tokenString) == 0 {
 		return ""
 	}
-	return string(decodeAccess.Data)
-}
 
-// VaildRefreshToken export
-func VaildRefreshToken(tokenString string) string {
-	decdoeRefresh, err := _decodeToken(tokenString, cfg.Jwt.RefreshKey)
+	decodeToken, err := _decodeToken(tokenString, cfg.Jwt.AccessKey)
 	if err != nil {
 		log.Println(err)
 		return ""
 	}
-	return string(decdoeRefresh.Data)
+	return string(decodeToken.Data)
 }
 
 func _decodeToken(tokenString string, secret string) (*PayLoad, *JwtException) {

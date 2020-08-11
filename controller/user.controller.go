@@ -1,13 +1,34 @@
 package controller
 
 import (
-	"log"
 	"net/http"
 
-	"github.com/dlog/core"
 	"github.com/dlog/service"
+
+	"github.com/dlog/core"
+	"github.com/dlog/dto"
 	"github.com/gin-gonic/gin"
 )
+
+// UserLogin export
+func UserLogIn() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var in dto.UserInDTO
+		core.GetJSON(c, &in)
+		c.JSON(http.StatusOK, gin.H{"user": service.ProcLogin(in)})
+	}
+}
+
+// UserLogOut export
+func UserLogOut() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{})
+	}
+}
+
+/*
+	아래는 구버전
+
 
 // GetUser export
 func GetUser() gin.HandlerFunc {
@@ -72,3 +93,4 @@ func VaildRefreshToken() gin.HandlerFunc {
 		}
 	}
 }
+*/
