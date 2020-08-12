@@ -47,7 +47,7 @@ type TbUser struct {
 
 // TbPost : Post 테이블 모델
 type TbPost struct {
-	PostKey      string `gorm:"type:varchar(100);primary_key"`
+	PostKey      string `gorm:"type:bigserial;primary_key;auto_increment;"`
 	PostTitle    string `gorm:"type:varchar(100);not null;"`
 	PostSubTitle string `gorm:"varchar(100);not null;"`
 	PostContent  string `gorm:"text;"`

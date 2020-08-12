@@ -12,9 +12,9 @@ type UserInDTO struct {
 
 // UserOutDTO export
 type UserOutDTO struct {
-	LoginID     string `json:"LoginID"`
-	Role        string `json:"Role"`
-	AccessToken string `json:"AccessToken"`
+	LoginID     string
+	Role        string
+	AccessToken string
 }
 
 // UserRsDTO export

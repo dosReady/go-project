@@ -15,8 +15,8 @@ func ProcLogin(p dto.UserInDTO) (r dto.UserOutDTO) {
 			LoginID string
 			ROLE    string
 		}{
-			LoginID: p.User.LoginID,
-			ROLE:    p.User.Role,
+			LoginID: user.LoginID,
+			ROLE:    user.Role,
 		}
 		jsonbyte := core.EncodingJSON(objType)
 
