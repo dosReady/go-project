@@ -18,12 +18,18 @@ func GetPostList() gin.HandlerFunc {
 	}
 }
 
+//GetPost export
 func GetPost() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{})
+		var param struct {
+			PostKey string `json:"postkey"`
+		}
+		core.GetJSON(c, &param)
+		c.JSON(http.StatusOK, gin.H{"post": service.GetPost(param.PostKey)})
 	}
 }
 
+//AddPost export
 func AddPost() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var post dto.PostInDTO
@@ -33,6 +39,7 @@ func AddPost() gin.HandlerFunc {
 	}
 }
 
+//RemovePost export
 func RemovePost() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{})
