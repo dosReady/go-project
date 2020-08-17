@@ -77,13 +77,13 @@ func main() {
 		api.Use(checkAuth)
 		api.POST("/add/post", controller.AddPost())
 		api.POST("/remove/post", controller.RemovePost())
-		api.POST("/get/post", controller.GetPost())
-		api.POST("/get/postlist", controller.GetPostList())
 		api.POST("/echo", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"test": "!!!"})
 		})
 	}
 
+	r.POST("/get/post", controller.GetPost())
+	r.POST("/get/postlist", controller.GetPostList())
 	r.POST("/user/login", controller.UserLogIn())
 	r.POST("/user/logout", controller.UserLogOut())
 
