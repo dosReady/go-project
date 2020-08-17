@@ -6,8 +6,8 @@ import (
 )
 
 //GetPostList export
-func GetPostList() interface{} {
-	return dao.GetPostList()
+func GetPostList(category string) interface{} {
+	return dao.GetPostList(category)
 }
 
 //GetPost export

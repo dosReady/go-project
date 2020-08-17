@@ -51,5 +51,6 @@ type TbPost struct {
 	PostTitle    string `gorm:"type:varchar(100);not null;"`
 	PostSubTitle string `gorm:"varchar(100);not null;"`
 	PostContent  string `gorm:"text;"`
+	PostCategory string `gorm:"varchar(100);not null;"`
 	CommonModel
 }

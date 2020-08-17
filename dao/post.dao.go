@@ -5,7 +5,7 @@ import (
 )
 
 //GetPostList export
-func GetPostList() interface{} {
+func GetPostList(category string) interface{} {
 	db := Setup()
 	defer db.Close()
 
@@ -14,6 +14,7 @@ func GetPostList() interface{} {
 		PostTitle    string
 		PostSubTitle string
 		PostContent  string
+		PostCategory string
 		CreatedAt    string
 		UpdatedAt    string
 	}
@@ -27,7 +28,8 @@ func GetPostList() interface{} {
 			, TO_CHAR(created_at ,'YYYYMMDD') AS created_at
 			, TO_CHAR(updated_at ,'YYYYMMDD') AS updated_at
 		FROM tb_posts
-	`).Find(&list)
+		WHERE post_category = ?
+	`, category).Find(&list)
 
 	return list
 }
@@ -67,9 +69,10 @@ func AddPost(post dto.PostInDTO) {
 	defer db.Close()
 
 	data := TbPost{
-		PostKey:     post.PostKey,
-		PostTitle:   post.PostTitle,
-		PostContent: post.PostContent,
+		PostKey:      post.PostKey,
+		PostTitle:    post.PostTitle,
+		PostContent:  post.PostContent,
+		PostCategory: post.PostCategory,
 	}
 	db.Create(&data)
 	db.NewRecord(&data)

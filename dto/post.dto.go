@@ -6,4 +6,5 @@ type PostInDTO struct {
 	PostTitle    string `json:"PostTitle"`
 	PostSubTitle string `json:"PostSubTitle"`
 	PostContent  string `json:"PostContent"`
+	PostCategory string `json:"PostCategory"`
 }
