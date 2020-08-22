@@ -47,6 +47,21 @@ func AddPost() gin.HandlerFunc {
 //RemovePost export
 func RemovePost() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var param struct {
+			PostKey string `json:"postkey"`
+		}
+		core.GetJSON(c, &param)
+		service.RemovePost(param.PostKey)
+		c.JSON(http.StatusOK, gin.H{})
+	}
+}
+
+//InputPost export
+func InputPost() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var post dto.PostInDTO
+		core.GetJSON(c, &post)
+		service.InputPost(post)
 		c.JSON(http.StatusOK, gin.H{})
 	}
 }

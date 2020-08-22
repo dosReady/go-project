@@ -24,3 +24,12 @@ func AddPost(post dto.PostInDTO) {
 func RemovePost(postkey string) {
 	dao.RemovePost(postkey)
 }
+
+//InputPost export
+func InputPost(post dto.PostInDTO) {
+	if len(post.PostKey) > 0 {
+		dao.UpdPost(post)
+	} else {
+		dao.AddPost(post)
+	}
+}

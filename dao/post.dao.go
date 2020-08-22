@@ -78,6 +78,19 @@ func AddPost(post dto.PostInDTO) {
 	db.NewRecord(&data)
 }
 
+//UpdPost export
+func UpdPost(post dto.PostInDTO) {
+	db := Setup()
+	defer db.Close()
+
+	data := TbPost{
+		PostTitle:    post.PostTitle,
+		PostContent:  post.PostContent,
+		PostCategory: post.PostCategory,
+	}
+	db.Model(TbPost{PostKey: post.PostKey}).Updates(data)
+}
+
 //RemovePost export
 func RemovePost(postkey string) {
 	db := Setup()

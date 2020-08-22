@@ -77,6 +77,7 @@ func main() {
 		api.Use(checkAuth)
 		api.POST("/add/post", controller.AddPost())
 		api.POST("/remove/post", controller.RemovePost())
+		api.POST("/input/post", controller.InputPost())
 		api.POST("/echo", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"test": "!!!"})
 		})
