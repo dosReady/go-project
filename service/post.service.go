@@ -7,29 +7,50 @@ import (
 
 //GetPostList export
 func GetPostList(category string) interface{} {
-	return dao.GetPostList(category)
+	session := dao.Setup(false)
+	defer session.Close()
+	return session.GetPostList(category)
 }
 
 //GetPost export
-func GetPost(postkey string) interface{} {
-	return dao.GetPost(postkey)
+func GetPost(postkey string) (interface{}, interface{}) {
+	session := dao.Setup(false)
+	defer session.Close()
+	return session.GetPost(postkey), session.SrchPostBindTags(postkey)
 }
 
-//AddPost export
-func AddPost(post dto.PostInDTO) {
-	dao.AddPost(post)
-}
-
-//AddPost export
+//RemovePost export
 func RemovePost(postkey string) {
-	dao.RemovePost(postkey)
+	session := dao.Setup(false)
+	defer session.Close()
+	session.RemovePost(postkey)
 }
 
 //InputPost export
 func InputPost(post dto.PostInDTO) {
+	session := dao.Setup(true)
+	defer session.Close()
+
+	var postkey string
 	if len(post.PostKey) > 0 {
-		dao.UpdPost(post)
+		postkey = post.PostKey
+		session.UpdPost(post)
 	} else {
-		dao.AddPost(post)
+		postkey = session.AddPost(post)
+	}
+
+	for _, item := range post.Tags {
+		if len(item.TagKey) > 0 && item.IsDel == "Y" {
+			session.DelTagMap(item.TagKey)
+		} else {
+			chkTagKey, chkPostKey := session.SrchTagMapByName(item.TagName)
+			if len(chkTagKey) == 0 {
+				chkTagKey = session.AddTag(item.TagName)
+			}
+
+			if len(chkPostKey) == 0 && len(chkTagKey) > 0 {
+				session.AddTagMap(postkey, chkTagKey)
+			}
+		}
 	}
 }

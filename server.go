@@ -17,26 +17,6 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 )
 
-func initializeDB() {
-	log.Println("========================= DB 초기화 ==========================")
-	db := dao.Setup()
-	tx := db.Begin()
-
-	tx.AutoMigrate(dao.TbUser{}, dao.TbPost{})
-
-	defer tx.Close()
-	defer db.Close()
-	defer func() {
-		if err := recover(); err != nil {
-			log.Fatal(err)
-			tx.Rollback()
-		} else {
-			tx.Commit()
-		}
-	}()
-
-}
-
 func checkAuth(c *gin.Context) {
 	log.Println("=============== 권한 체크  ================")
 	sHeader := c.Request.Header.Get("Authorization")
@@ -54,7 +34,8 @@ func checkAuth(c *gin.Context) {
 
 func main() {
 
-	initializeDB()
+	session := dao.Setup(true)
+	session.InitializeDB()
 
 	r := gin.New()
 	r.Use(gin.Recovery())
@@ -75,7 +56,6 @@ func main() {
 	api := r.Group("")
 	{
 		api.Use(checkAuth)
-		api.POST("/add/post", controller.AddPost())
 		api.POST("/remove/post", controller.RemovePost())
 		api.POST("/input/post", controller.InputPost())
 		api.POST("/echo", func(c *gin.Context) {

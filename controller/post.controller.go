@@ -30,17 +30,9 @@ func GetPost() gin.HandlerFunc {
 			PostKey string `json:"postkey"`
 		}
 		core.GetJSON(c, &param)
-		c.JSON(http.StatusOK, gin.H{"post": service.GetPost(param.PostKey)})
-	}
-}
 
-//AddPost export
-func AddPost() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		var post dto.PostInDTO
-		core.GetJSON(c, &post)
-		service.AddPost(post)
-		c.JSON(http.StatusOK, gin.H{})
+		post, tag := service.GetPost(param.PostKey)
+		c.JSON(http.StatusOK, gin.H{"post": post, "tag": tag})
 	}
 }
 

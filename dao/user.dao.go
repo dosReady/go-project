@@ -5,10 +5,8 @@ import (
 )
 
 // GetUser export
-func GetUser(loginId string) (user dto.UserRsDTO) {
-	db := Setup()
-	defer db.Close()
-
+func (session *Session) GetUser(loginId string) (user dto.UserRsDTO) {
+	db := session.Db
 	db.Select(`
 		login_id,
 		role,
@@ -19,10 +17,8 @@ func GetUser(loginId string) (user dto.UserRsDTO) {
 }
 
 // UpdateUserToken export
-func UpdateUserToken(loginId string, token string) {
-	db := Setup()
-	defer db.Close()
-
+func (session *Session) UpdateUserToken(loginId string, token string) {
+	db := session.Db
 	db.Model(TbUser{}).Where("login_id = ?", loginId).
 		Updates(TbUser{AccessToken: token})
 }

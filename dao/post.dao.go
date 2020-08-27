@@ -5,10 +5,8 @@ import (
 )
 
 //GetPostList export
-func GetPostList(category string) interface{} {
-	db := Setup()
-	defer db.Close()
-
+func (session *Session) GetPostList(category string) interface{} {
+	db := session.Db
 	var list []struct {
 		PostKey      string
 		PostTitle    string
@@ -21,24 +19,23 @@ func GetPostList(category string) interface{} {
 
 	db.Raw(`
 		SELECT 
-			post_key
-			, post_title
-			, post_sub_title
-			, post_content
-			, TO_CHAR(created_at ,'YYYYMMDD') AS created_at
-			, TO_CHAR(updated_at ,'YYYYMMDD') AS updated_at
-		FROM tb_posts
-		WHERE post_category = ?
+			POST_KEY
+			, POST_TITLE
+			, POST_SUB_TITLE
+			, POST_CONTENT
+			, TO_CHAR(CREATED_AT ,'YYYYMMDD') AS CREATED_AT
+			, TO_CHAR(UPDATED_AT ,'YYYYMMDD') AS UPDATED_AT
+		FROM TB_POSTS
+		WHERE POST_CATEGORY = ?
+		ORDER BY CREATED_AT DESC
 	`, category).Find(&list)
 
 	return list
 }
 
 //GetPost export
-func GetPost(postkey string) interface{} {
-	db := Setup()
-	defer db.Close()
-
+func (session *Session) GetPost(postkey string) interface{} {
+	db := session.Db
 	var post struct {
 		PostKey      string
 		PostTitle    string
@@ -50,24 +47,22 @@ func GetPost(postkey string) interface{} {
 
 	db.Raw(`
 		SELECT 
-			post_key
-			, post_title
-			, post_sub_title
-			, post_content
-			, TO_CHAR(created_at ,'YYYYMMDD') AS created_at
-			, TO_CHAR(updated_at ,'YYYYMMDD') AS updated_at
-		FROM tb_posts
-		WHERE post_key = ?
+			POST_KEY
+			, POST_TITLE
+			, POST_SUB_TITLE
+			, POST_CONTENT
+			, TO_CHAR(CREATED_AT ,'YYYYMMDD') AS CREATED_AT
+			, TO_CHAR(UPDATED_AT ,'YYYYMMDD') AS UPDATED_AT
+		FROM TB_POSTS
+		WHERE POST_KEY = ?
 	`, postkey).Find(&post)
 
 	return post
 }
 
 //AddPost export
-func AddPost(post dto.PostInDTO) {
-	db := Setup()
-	defer db.Close()
-
+func (session *Session) AddPost(post dto.PostInDTO) string {
+	db := session.Db
 	data := TbPost{
 		PostKey:      post.PostKey,
 		PostTitle:    post.PostTitle,
@@ -76,13 +71,13 @@ func AddPost(post dto.PostInDTO) {
 	}
 	db.Create(&data)
 	db.NewRecord(&data)
+
+	return data.PostKey
 }
 
 //UpdPost export
-func UpdPost(post dto.PostInDTO) {
-	db := Setup()
-	defer db.Close()
-
+func (session *Session) UpdPost(post dto.PostInDTO) {
+	db := session.Db
 	data := TbPost{
 		PostTitle:    post.PostTitle,
 		PostContent:  post.PostContent,
@@ -92,9 +87,7 @@ func UpdPost(post dto.PostInDTO) {
 }
 
 //RemovePost export
-func RemovePost(postkey string) {
-	db := Setup()
-	defer db.Close()
-
+func (session *Session) RemovePost(postkey string) {
+	db := session.Db
 	db.Delete(TbPost{PostKey: postkey})
 }

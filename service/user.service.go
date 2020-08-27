@@ -8,7 +8,10 @@ import (
 
 // ProcLogin export
 func ProcLogin(p dto.UserInDTO) (r dto.UserOutDTO) {
-	user := dao.GetUser(p.User.LoginID)
+	session := dao.Setup(false)
+	defer session.Close()
+
+	user := session.GetUser(p.User.LoginID)
 
 	if &user != nil {
 		var objType = struct {
@@ -27,7 +30,7 @@ func ProcLogin(p dto.UserInDTO) (r dto.UserOutDTO) {
 		r.Role = user.Role
 		r.AccessToken = accessToken
 
-		dao.UpdateUserToken(r.LoginID, r.AccessToken)
+		session.UpdateUserToken(r.LoginID, r.AccessToken)
 	}
 
 	return r
@@ -35,5 +38,8 @@ func ProcLogin(p dto.UserInDTO) (r dto.UserOutDTO) {
 
 // ProcLogOut export
 func ProcLogOut(loginId string) {
-	dao.UpdateUserToken(loginId, " ")
+	session := dao.Setup(false)
+	defer session.Close()
+
+	session.UpdateUserToken(loginId, " ")
 }
