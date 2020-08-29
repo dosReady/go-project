@@ -1,6 +1,8 @@
 package dao
 
-import "github.com/dlog/dto"
+import (
+	"log"
+)
 
 // AddTag export
 func (session *Session) AddTag(param string) string {
@@ -29,65 +31,50 @@ func (session *Session) AddTagMap(postkey string, tagkey string) {
 	db.NewRecord(&tagMap)
 }
 
-//DelTagMap: TagMap 정보 삭제
-func (session *Session) DelTagMap(tagkey string) {
+//DelTagMapByPostKey: PostKey로 조회하여 TagMap 정보 삭제
+func (session *Session) DelTagMapByPostKey(postkey string) {
 	db := session.Db
-	db.Delete(TbTagMap{}, "tag_key = ?", tagkey)
+	db.Delete(TbTagMap{}, "post_key = ?", postkey)
 }
 
-// SrchNrmlTag : 태그  일반 조회
-func (session *Session) SrchNrmlTag(tagname string) (data dto.TagInDTO) {
+// GetTagKey : TagKey 조회
+func (session *Session) GetTagKey(tagname string) (tagkey string) {
 	db := session.Db
+
+	var result struct {
+		TagKey string
+	}
 
 	db.Raw(`
 		SELECT 
-			  tag_key
-			, tag_name
-		FROM tb_tags
-		WHERE tag_name = ?
-	`, tagname).Find(&data)
-	return data
-}
-
-// SrchTagMapByName: 태그 Map 태그이름으로 조회
-func (session *Session) SrchTagMapByName(tagname string) (string, string) {
-	db := session.Db
-
-	var data struct {
-		TagKey  string
-		PostKey string
-	}
-
-	db.Raw(`
-	SELECT 
-	  T1.TAG_KEY 
-	, T2.POST_KEY
-	FROM TB_TAGS T1
-	LEFT OUTER JOIN TB_TAG_MAPS T2 ON T1.TAG_KEY  = T2.TAG_KEY 
-	WHERE 1=1
-	AND T1.TAG_NAME  = ?
-	`, tagname).Find(&data)
-
-	return data.TagKey, data.PostKey
+			TAG_KEY
+		FROM TB_TAGS T1
+		WHERE TAG_NAME = ?
+	`, tagname).Find(&result)
+	return result.TagKey
 }
 
 // SrchPostBindTags: Post에 바인드된 Tag목록 조회
-func (session *Session) SrchPostBindTags(postkey string) interface{} {
+func (session *Session) SrchPostBindTags(postkey string) (datas []string) {
 	db := session.Db
 
-	var data []struct {
-		TagKey  string
-		TagName string
-	}
-
-	db.Raw(`
+	rows, _ := db.Raw(`
 	SELECT 
-		 T1.TAG_KEY 
-		,T1.TAG_NAME 
+		T1.TAG_NAME 
 	FROM TB_TAGS T1
 	INNER JOIN TB_TAG_MAPS T2 ON T1.TAG_KEY  = T2.TAG_KEY 
 	WHERE 1=1
 	AND T2.POST_KEY = ?
-	`, postkey).Find(&data)
-	return data
+	`, postkey).Rows()
+
+	var rs string
+
+	for rows.Next() {
+		if err := rows.Scan(&rs); err != nil {
+			log.Panicln(err)
+		}
+		datas = append(datas, rs)
+	}
+
+	return datas
 }

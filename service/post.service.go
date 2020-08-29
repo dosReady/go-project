@@ -6,10 +6,10 @@ import (
 )
 
 //GetPostList export
-func GetPostList(category string) interface{} {
+func GetPostList() interface{} {
 	session := dao.Setup(false)
 	defer session.Close()
-	return session.GetPostList(category)
+	return session.GetPostList()
 }
 
 //GetPost export
@@ -39,18 +39,14 @@ func InputPost(post dto.PostInDTO) {
 		postkey = session.AddPost(post)
 	}
 
-	for _, item := range post.Tags {
-		if len(item.TagKey) > 0 && item.IsDel == "Y" {
-			session.DelTagMap(item.TagKey)
-		} else {
-			chkTagKey, chkPostKey := session.SrchTagMapByName(item.TagName)
-			if len(chkTagKey) == 0 {
-				chkTagKey = session.AddTag(item.TagName)
-			}
-
-			if len(chkPostKey) == 0 && len(chkTagKey) > 0 {
-				session.AddTagMap(postkey, chkTagKey)
-			}
+	var tagkey string
+	session.DelTagMapByPostKey(postkey)
+	for _, tagName := range post.Tags {
+		tagkey = session.GetTagKey(tagName)
+		if len(tagkey) == 0 {
+			tagkey = session.AddTag(tagName)
 		}
+
+		session.AddTagMap(postkey, tagkey)
 	}
 }

@@ -81,11 +81,9 @@ type TbUser struct {
 
 // TbPost : Post 테이블 모델
 type TbPost struct {
-	PostKey      string `gorm:"type:bigserial;primary_key;auto_increment;"`
-	PostTitle    string `gorm:"type:varchar(100);not null;"`
-	PostSubTitle string `gorm:"varchar(100);not null;"`
-	PostContent  string `gorm:"text;"`
-	PostCategory string `gorm:"varchar(100);not null;"`
+	PostKey     string `gorm:"type:bigserial;primary_key;auto_increment;"`
+	PostTitle   string `gorm:"type:varchar(100);not null;"`
+	PostContent string `gorm:"text;"`
 	CommonModel
 }
 
