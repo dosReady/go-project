@@ -6,10 +6,10 @@ import (
 )
 
 //GetPostList export
-func GetPostList() interface{} {
+func GetPostList(tagkey string) interface{} {
 	session := dao.Setup(false)
 	defer session.Close()
-	return session.GetPostList()
+	return session.GetPostList(tagkey)
 }
 
 //GetPost export

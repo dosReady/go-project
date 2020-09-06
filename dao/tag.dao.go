@@ -2,6 +2,8 @@ package dao
 
 import (
 	"log"
+
+	"github.com/dlog/dto"
 )
 
 // AddTag export
@@ -77,4 +79,24 @@ func (session *Session) SrchPostBindTags(postkey string) (datas []string) {
 	}
 
 	return datas
+}
+
+//DAO - GetTagList: 태그 목록조회
+func (session *Session) GetTagList(param dto.TagDTO) (list []dto.TagDTO) {
+	db := session.Db
+
+	db = db.Raw(`
+		SELECT 
+			T1.TAG_KEY
+			,T1.TAG_NAME 
+			,COUNT(*) AS CNT
+		FROM TB_TAGS T1
+		INNER JOIN TB_TAG_MAPS T2 ON T1.TAG_KEY  = T2.TAG_KEY 
+		WHERE 1=1
+		GROUP BY T1.TAG_KEY, T1.TAG_NAME
+		ORDER BY T1.CREATED_AT	
+	`)
+	db.Find(&list)
+
+	return list
 }

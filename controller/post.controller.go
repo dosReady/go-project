@@ -14,7 +14,12 @@ import (
 //GetPostList export
 func GetPostList() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"list": service.GetPostList()})
+		var param struct {
+			TagKey string `json:"tagkey"`
+		}
+		core.GetJSON(c, &param)
+
+		c.JSON(http.StatusOK, gin.H{"list": service.GetPostList(param.TagKey)})
 	}
 }
 

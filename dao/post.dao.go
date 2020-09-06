@@ -5,7 +5,7 @@ import (
 )
 
 //GetPostList export
-func (session *Session) GetPostList() interface{} {
+func (session *Session) GetPostList(tagkey string) interface{} {
 	db := session.Db
 	var list []struct {
 		PostKey     string
@@ -27,9 +27,10 @@ func (session *Session) GetPostList() interface{} {
 	LEFT OUTER JOIN TB_TAG_MAPS T2 ON T1.POST_KEY = T2.POST_KEY 
 	LEFT OUTER JOIN TB_TAGS T3 ON T2.TAG_KEY  = T3.TAG_KEY 
 	WHERE 1=1
+	AND T3.TAG_KEY = ?
 	GROUP BY T1.POST_KEY, T1.POST_TITLE, T1.POST_CONTENT, T1.CREATED_AT 
 	ORDER BY T1.CREATED_AT DESC
-	`).Find(&list)
+	`, tagkey).Find(&list)
 	return list
 }
 

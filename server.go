@@ -65,6 +65,7 @@ func main() {
 
 	r.POST("/get/post", controller.GetPost())
 	r.POST("/get/postlist", controller.GetPostList())
+	r.POST("/get/taglist", controller.GetTagList())
 	r.POST("/user/login", controller.UserLogIn())
 	r.POST("/user/logout", controller.UserLogOut())
 
